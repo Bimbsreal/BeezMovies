@@ -1,0 +1,9 @@
+export const SEARCH_INDEX_VERSION_LABEL = 1;
+export const SEARCH_BATCH_SIZE = 50;
+export const SEARCH_MAX_QUERY = 80;
+export const SEARCH_MIN_QUERY = 2;
+export const SEARCH_CACHE_TTL_SECONDS = 30;
+export const SEARCH_SUGGESTION_LIMIT = 8;
+export const SEARCH_STATEMENT_TIMEOUT_MS = 1500;
+export const SEARCH_EVENT_ATTEMPTS = 5;
+export const FUZZY_MIN_LENGTH = 5;

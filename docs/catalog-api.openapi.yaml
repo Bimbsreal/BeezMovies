@@ -1,0 +1,237 @@
+openapi: 3.0.3
+info:
+  title: BeezMovies Catalog API
+  version: 0.1.0
+  description: Public catalog reads. PostgreSQL is the source of truth. See docs/catalog-api.md.
+servers:
+  - url: http://localhost:5000/api/v1
+paths:
+  /movies:
+    get:
+      summary: List movies
+      security: []
+      parameters:
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/Limit'
+        - $ref: '#/components/parameters/Sort'
+        - $ref: '#/components/parameters/Order'
+        - name: status
+          in: query
+          schema: { type: string, enum: [draft, active, archived] }
+          description: draft and archived require an admin session.
+        - name: genre
+          in: query
+          schema: { type: string }
+        - name: year
+          in: query
+          schema: { type: integer, minimum: 1888, maximum: 2100 }
+        - name: releasedFrom
+          in: query
+          schema: { type: string, format: date }
+        - name: releasedTo
+          in: query
+          schema: { type: string, format: date }
+        - name: language
+          in: query
+          schema: { type: string }
+        - name: country
+          in: query
+          schema: { type: string }
+        - name: collection
+          in: query
+          schema: { type: string }
+        - name: q
+          in: query
+          schema: { type: string, maxLength: 100 }
+      responses:
+        '200':
+          description: Paginated movie summaries
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/MoviePage' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+  /movies/{slug}:
+    get:
+      summary: Movie detail by slug
+      security: []
+      parameters:
+        - name: slug
+          in: path
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          description: Public movie
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data: { $ref: '#/components/schemas/MovieDetail' }
+        '404': { $ref: '#/components/responses/NotFound' }
+  /movies/id/{id}:
+    get:
+      summary: Movie detail by id for administrators
+      security: [{ cookieAuth: [] }]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        '200':
+          description: Movie detail including id
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+  /genres:
+    get:
+      summary: List genres
+      security: []
+      responses:
+        '200':
+          description: Genre list
+  /genres/{slug}/movies:
+    get:
+      summary: Movies in a genre
+      security: []
+      parameters:
+        - name: slug
+          in: path
+          required: true
+          schema: { type: string }
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/Limit'
+        - $ref: '#/components/parameters/Sort'
+        - $ref: '#/components/parameters/Order'
+      responses:
+        '200': { description: Genre and movie page }
+        '404': { $ref: '#/components/responses/NotFound' }
+  /collections:
+    get:
+      summary: List collections
+      security: []
+      responses:
+        '200': { description: Collection list }
+  /collections/{slug}:
+    get:
+      summary: Collection detail with ordered movies
+      security: []
+      parameters:
+        - name: slug
+          in: path
+          required: true
+          schema: { type: string }
+      responses:
+        '200': { description: Collection }
+        '404': { $ref: '#/components/responses/NotFound' }
+  /people/{id}:
+    get:
+      summary: Person detail
+      security: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        '200': { description: Person }
+        '404': { $ref: '#/components/responses/NotFound' }
+  /people/{id}/movies:
+    get:
+      summary: Movies credited to a person
+      security: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/Limit'
+      responses:
+        '200': { description: Person and movie page }
+        '404': { $ref: '#/components/responses/NotFound' }
+components:
+  securitySchemes:
+    cookieAuth:
+      type: apiKey
+      in: cookie
+      name: beezmovies_session
+  parameters:
+    Page:
+      name: page
+      in: query
+      schema: { type: integer, minimum: 1, maximum: 10000, default: 1 }
+    Limit:
+      name: limit
+      in: query
+      schema: { type: integer, minimum: 1, maximum: 50, default: 20 }
+    Sort:
+      name: sort
+      in: query
+      schema: { type: string, enum: [release_date, title, created_at], default: release_date }
+    Order:
+      name: order
+      in: query
+      schema: { type: string, enum: [asc, desc], default: desc }
+  responses:
+    BadRequest:
+      description: Invalid parameters
+    Unauthorized:
+      description: Authentication required
+    Forbidden:
+      description: Insufficient permission
+    NotFound:
+      description: Record not found
+  schemas:
+    MoviePage:
+      type: object
+      required: [data, pagination]
+      properties:
+        data:
+          type: array
+          items: { $ref: '#/components/schemas/MovieSummary' }
+        pagination: { $ref: '#/components/schemas/Pagination' }
+    Pagination:
+      type: object
+      properties:
+        page: { type: integer }
+        limit: { type: integer }
+        total: { type: integer }
+        totalPages: { type: integer }
+    MovieSummary:
+      type: object
+      properties:
+        slug: { type: string }
+        title: { type: string }
+        originalTitle: { type: string, nullable: true }
+        synopsis: { type: string, nullable: true }
+        releaseDate: { type: string, nullable: true }
+        releaseYear: { type: integer, nullable: true }
+        runtimeMinutes: { type: integer, nullable: true }
+        status: { type: string }
+        seo: { $ref: '#/components/schemas/Seo' }
+    Seo:
+      type: object
+      properties:
+        title: { type: string }
+        description: { type: string, nullable: true }
+        path: { type: string }
+        image: { type: string, nullable: true }
+    MovieDetail:
+      allOf:
+        - $ref: '#/components/schemas/MovieSummary'
+        - type: object
+          properties:
+            languages: { type: array, items: { type: object } }
+            countries: { type: array, items: { type: object } }
+            alternateTitles: { type: array, items: { type: object } }
+            images: { type: array, items: { type: object } }
+            trailers: { type: array, items: { type: object } }
+            credits: { type: array, items: { type: object } }
+            collection: { type: object, nullable: true }
+            externalIdentifiers: { type: array, items: { type: object } }
+            ratings: { type: array, items: { type: object } }
+            media: { type: array, items: { type: object } }
+            tags: { type: array, items: { type: object } }

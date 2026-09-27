@@ -1,0 +1,23 @@
+# Local development only. This file does not deploy BeezMovies.
+# Use it on machines that run PostgreSQL and Redis through Docker.
+# This workstation already has PostgreSQL 18 installed as a Windows service.
+
+services:
+  postgres:
+    image: postgres:18
+    environment:
+      POSTGRES_USER: beezmovies
+      POSTGRES_PASSWORD: beezmovies_local
+      POSTGRES_DB: beezmovies
+    ports:
+      - "5432:5432"
+    volumes:
+      - beezmovies_pg:/var/lib/postgresql/data
+
+  redis:
+    image: redis:7
+    ports:
+      - "6379:6379"
+
+volumes:
+  beezmovies_pg:

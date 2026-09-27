@@ -1,0 +1,27 @@
+name: ci
+
+on:
+  push:
+  workflow_dispatch:
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - run: npm install --prefix backend
+      - run: npm install --prefix frontend
+      - run: node scripts/release-check.mjs
+      - run: npm test --prefix frontend
+
+  production-approval:
+    needs: check
+    if: github.event_name == 'workflow_dispatch'
+    environment: production
+    runs-on: ubuntu-latest
+    steps:
+      - name: Record approval
+        run: echo "Approval recorded. This workflow does not deploy. Follow docs/production-runbook.md on the host."

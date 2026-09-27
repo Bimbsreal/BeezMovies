@@ -1,0 +1,39 @@
+{
+  "name": "BeezMovies",
+  "short_name": "BeezMovies",
+  "description": "BeezMovies is a cinematic streaming home for film.",
+  "id": "/",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#0B0D0F",
+  "theme_color": "#0B0D0F",
+  "lang": "en",
+  "icons": [
+    {
+      "src": "/branding/beezmovies-logo.jpg",
+      "sizes": "1024x682",
+      "type": "image/jpeg",
+      "purpose": "any"
+    },
+    {
+      "src": "/branding/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/branding/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/branding/icon-maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ]
+}

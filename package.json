@@ -1,0 +1,21 @@
+{
+  "name": "beezmovies",
+  "version": "1.0.0-rc.1",
+  "private": true,
+  "type": "module",
+  "description": "BeezMovies local development workspace",
+  "scripts": {
+    "dev:frontend": "npm run dev --prefix frontend",
+    "dev:backend": "npm run dev --prefix backend",
+    "start:frontend": "npm run start --prefix frontend",
+    "start:backend": "npm run start --prefix backend",
+    "migrate": "npm run migrate --prefix backend",
+    "seed": "npm run seed --prefix backend",
+    "seed:staging": "npm run seed:staging --prefix backend",
+    "seed:production": "npm run seed:production --prefix backend",
+    "release:check": "node scripts/release-check.mjs",
+    "test": "npm run test --prefix backend && npm run test --prefix frontend",
+    "worker": "node workers/src/bootstrap.js",
+    "verify:database": "npm run verify:database --prefix backend"
+  }
+}
